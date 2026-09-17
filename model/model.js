@@ -1,7 +1,9 @@
 /*
  * BTC Retirement Model — calculation engine.
  * Pure functions, no DOM. Works as a plain <script> in the browser (window.BTCModel)
- * and as a CommonJS module in Node for tests. Section numbers refer to SPEC.md.
+ * and as a CommonJS module in Node for tests. Section numbers refer to SPEC.md;
+ * PROJECT.md "Version 0.2" lists where the app deliberately differs from it.
+ * All money is in US dollars.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -19,23 +21,23 @@
   const TOP_DEV = DEV[0] + DEV[1] + DEV[2]; // 1.06054: trend→top log distance per unit amplitude
   const PTT_TARGET = 1.45;
   const PTT_RANGE = [1.15, 2.5];
+  const FALLBACK_SPOT_USD = 80000;
 
-  // §3 defaults
+  // App defaults. top_year 2030 = the top is on 1 Jan 2030, i.e. end of 2029.
   const DEFAULTS = Object.freeze({
     current_age: 47,
     retirement_age: 50,
     end_age: 90,
-    lifestyle_eur: 100000,
+    lifestyle_usd: 100000,
     compound_until_year: 2033,
     bot_ratio: 0.6,
     bot_return: 0.2,
     withdrawal_mode: 'DCA',
-    spot_eur: 80000,
+    spot_usd: FALLBACK_SPOT_USD,
     inflation: 0.04,
     top_usd: 250000,
     top_year: 2030,
-    eurusd: 1.1,
-    ladder_start_index: 0,
+    ladder_start_index: 'auto',
     cash_yield: 0,
     cycle_enabled: true,
     lifestyles: [50000, 75000, 100000],
@@ -43,8 +45,11 @@
 
   const mod = (a, n) => ((a % n) + n) % n;
 
+  // Fills defaults and resolves an automatic ladder start to a number.
   function withDefaults(p) {
-    return Object.assign({}, DEFAULTS, p || {});
+    const q = Object.assign({}, DEFAULTS, p || {});
+    if (q.ladder_start_index === 'auto') q.ladder_start_index = suggestLadderIndex(q);
+    return q;
   }
 
   // §3 derived values
@@ -78,15 +83,15 @@
    * Solves the amplitude a1 from the top anchor. The spec's closed form divides by
    * 1.06054 and subtracts t_peak_end·ln(1+schedule[0]); that is exact when the top is
    * 3 years out (the default). This uses the general sum, which reduces to it.
+   * Expects a numeric ladder_start_index.
    */
   function solveCycle(p) {
     const sched = schedule(p);
     const s0 = sched[0];
     const { tPeakEnd } = derive(p);
     const offset = phaseOffset(tPeakEnd);
-    const anchorEur = p.top_usd / p.eurusd;
     if (!p.cycle_enabled) {
-      return { sched, a1: 0, peakToTrend: 1, offset, anchorEur, valid: true };
+      return { sched, a1: 0, peakToTrend: 1, offset, valid: true };
     }
     let trendLog = 0;
     let devSum = 0;
@@ -96,10 +101,10 @@
       devSum += (r / s0) * DEV[mod(t - offset, 4)];
     }
     if (tPeakEnd < 1 || Math.abs(devSum) < 1e-9) {
-      return { sched, a1: 0, peakToTrend: NaN, offset, anchorEur, valid: false };
+      return { sched, a1: 0, peakToTrend: NaN, offset, valid: false };
     }
-    const a1 = (Math.log(anchorEur / p.spot_eur) - trendLog) / devSum;
-    return { sched, a1, peakToTrend: Math.exp(a1 * TOP_DEV), offset, anchorEur, valid: true };
+    const a1 = (Math.log(p.top_usd / p.spot_usd) - trendLog) / devSum;
+    return { sched, a1, peakToTrend: Math.exp(a1 * TOP_DEV), offset, valid: true };
   }
 
   function phaseIndex(cycle, t) {
@@ -115,15 +120,15 @@
   }
 
   /*
-   * §2.4 — P[0..T+1], plus the smooth trend for charting. DEV is zero-sum from a cycle low,
-   * so the trend runs through cycle lows and tops sit peak_to_trend× above it. Unless the
-   * top is in 2030, today is already part-way up the cycle, so the trend starts below spot.
+   * §2.4 — P[0..T+1], plus the smooth trend. DEV is zero-sum from a cycle low, so the
+   * trend runs through cycle lows and tops sit peak_to_trend× above it. Unless the top
+   * is on 1 Jan 2030, today is already part-way up the cycle, so the trend starts below spot.
    */
   function pricePath(p, cycle, T) {
-    const P = [p.spot_eur];
+    const P = [p.spot_usd];
     let built = 0; // deviation accumulated since the last cycle low, per unit amplitude
     for (let k = 0; k < phaseIndex(cycle, 0); k++) built += DEV[k];
-    const trend = [p.spot_eur * Math.exp(-cycle.a1 * built)];
+    const trend = [p.spot_usd * Math.exp(-cycle.a1 * built)];
     const g = [];
     for (let t = 0; t <= T; t++) {
       g.push(growth(p, cycle, t));
@@ -135,7 +140,7 @@
 
   // §2.5
   function btcSold(p, path, t, mode) {
-    const E = p.lifestyle_eur * Math.pow(1 + p.inflation, t);
+    const E = p.lifestyle_usd * Math.pow(1 + p.inflation, t);
     if (mode === 'LS') {
       const c = p.cash_yield || 0;
       let pv = 0;
@@ -220,10 +225,10 @@
     return out;
   }
 
-  // §3 trap: ladder index whose peak/trend is closest to 1.45 for this top.
+  // §3 trap: the ladder start whose peak/trend is closest to 1.45 for this top and spot.
   function suggestLadderIndex(params) {
-    const p = withDefaults(params);
-    let best = p.ladder_start_index;
+    const p = Object.assign({}, DEFAULTS, params || {});
+    let best = 0;
     let bestErr = Infinity;
     for (let i = 0; i < CAGR_LADDER.length; i++) {
       const c = solveCycle(Object.assign({}, p, { ladder_start_index: i }));
@@ -234,19 +239,11 @@
     return best;
   }
 
-  // A ladder worth offering: different from the current one and inside the plausible band.
-  function usefulLadder(p) {
-    const i = suggestLadderIndex(p);
-    if (i === p.ladder_start_index) return null;
-    const c = solveCycle(Object.assign({}, p, { ladder_start_index: i }));
-    return c.peakToTrend >= PTT_RANGE[0] && c.peakToTrend <= PTT_RANGE[1] ? i : null;
-  }
-
   function range(values) {
     return { min: Math.min(...values), max: Math.max(...values) };
   }
 
-  // §4 outputs, §4.4 warnings, §6.2 sensitivity, §6.3 lever ranking
+  // §4 outputs and warnings, §6.2 sensitivity, §6.3 lever ranking — as shown in v0.2.
   function results(params) {
     const p = withDefaults(params);
     const ctx = prepare(p);
@@ -258,56 +255,31 @@
     const btcAtRetirement = atRetire ? atRetire.startHodl + atRetire.startBot : B0;
     const exhausted = sim.rows.find((r) => r.t >= d.tRetire && r.endHodl <= 1e-12);
 
+    // Scenario A: bots stop when you retire (last growth year is the year before).
     const scenarioA = Object.assign({}, p, { compound_until_year: d.retirementYear - 1 });
-    const scenarioB = p;
     const btcA = solve(scenarioA);
-    const lifestyleRows = p.lifestyles.map((L) => ({
+    const lifestyleList = p.lifestyles.slice();
+    if (!lifestyleList.includes(p.lifestyle_usd)) lifestyleList.push(p.lifestyle_usd);
+    lifestyleList.sort((a, b) => a - b);
+    const lifestyleRows = lifestyleList.map((L) => ({
       lifestyle: L,
-      A: solve(Object.assign({}, scenarioA, { lifestyle_eur: L })),
-      B: solve(Object.assign({}, scenarioB, { lifestyle_eur: L })),
+      isCurrent: L === p.lifestyle_usd,
+      A: L === p.lifestyle_usd ? btcA : solve(Object.assign({}, scenarioA, { lifestyle_usd: L })),
+      B: L === p.lifestyle_usd ? B0 : solve(Object.assign({}, p, { lifestyle_usd: L })),
     }));
 
-    // Withdrawal method comparison
-    const other = p.withdrawal_mode === 'DCA' ? 'LS' : 'DCA';
-    const otherB0 = solve(Object.assign({}, p, { withdrawal_mode: other }));
-
-    // Sensitivity: top price with ladder auto-corrected
-    const tops = [150000, 200000, 250000, 300000, 400000];
-    const topRows = tops.map((top) => {
-      const q = Object.assign({}, p, { top_usd: top });
-      q.ladder_start_index = suggestLadderIndex(q);
-      const c = solveCycle(q);
-      return { top, ladder: q.ladder_start_index, peakToTrend: c.peakToTrend, btc: solve(q) };
-    });
-    const botReturns = [0, 0.1, 0.15, 0.2, 0.25];
-    const botRows = botReturns.map((br) => ({
+    // Sensitivity: 2029 top with the ladder re-chosen automatically; bot return.
+    const topRows = [150000, 200000, 250000, 300000, 400000].map((top) => ({
+      top, btc: solve(Object.assign({}, p, { top_usd: top, ladder_start_index: 'auto' })),
+    }));
+    const botRows = [0, 0.1, 0.15, 0.2, 0.25].map((br) => ({
       botReturn: br, btc: solve(Object.assign({}, p, { bot_return: br })),
     }));
 
-    // Sequence risk: move retirement so it lands in each neighbouring cycle phase.
-    const seqRows = [];
-    for (let k = -1; k <= 2; k++) {
-      const age = p.retirement_age + k;
-      if (age < p.current_age || age >= p.end_age) continue;
-      const q = Object.assign({}, p, { retirement_age: age });
-      q.compound_until_year = Math.max(p.compound_until_year + k, GRID_START_YEAR - 1);
-      const qd = derive(q);
-      seqRows.push({
-        retirementAge: age, year: qd.retirementYear,
-        phase: PHASE_NAMES[phaseIndex(cycle, qd.tRetire)], btc: solve(q), isCurrent: k === 0,
-      });
-    }
-
-    const topRange = range(topRows.map((r) => r.btc));
-    const botRange = range(botRows.map((r) => r.btc));
-    const seqRange = range(seqRows.map((r) => r.btc));
     const levers = [
-      { name: 'Cycle top & trend position ($150K–$400K)', ...topRange },
-      { name: 'Bot return (0–25%)', ...botRange },
-      { name: 'Bots stop: year before retirement vs ' + p.compound_until_year,
-        ...range([btcA, B0]) },
-      { name: 'Retirement year / cycle phase', ...seqRange },
-      { name: 'Withdrawal method (LS vs DCA)', ...range([B0, otherB0]) },
+      { name: '2029 top prediction ($150K–$400K)', ...range(topRows.map((r) => r.btc)) },
+      { name: 'Bot return (0–25%)', ...range(botRows.map((r) => r.btc)) },
+      { name: `Bots stop: when you retire vs end of ${p.compound_until_year}`, ...range([btcA, B0]) },
     ].map((l) => Object.assign(l, { spread: l.max - l.min }))
       .sort((a, b) => b.spread - a.spread);
 
@@ -317,75 +289,66 @@
     return {
       params: p,
       derived: d,
-      cycle: { a1: cycle.a1, peakToTrend: cycle.peakToTrend, valid: cycle.valid,
-        anchorEur: cycle.anchorEur, schedule: cycle.sched },
+      cycle: { a1: cycle.a1, peakToTrend: cycle.peakToTrend, valid: cycle.valid, schedule: cycle.sched,
+        ladderStart: p.ladder_start_index, trendAtTop: ctx.path.trend[d.tPeakEnd] },
       btcNeeded: B0,
-      eurValue: B0 * p.spot_eur,
-      botSleeve: p.bot_ratio * B0,
-      hodlSleeve: (1 - p.bot_ratio) * B0,
+      usdValue: B0 * p.spot_usd,
+      botPortfolio: p.bot_ratio * B0,
+      hodlPortfolio: (1 - p.bot_ratio) * B0,
       btcAtRetirement,
-      scenarios: { A: btcA, B: B0,
-        AYear: scenarioA.compound_until_year, BYear: p.compound_until_year },
+      scenarios: { A: btcA, B: B0, AYear: scenarioA.compound_until_year, BYear: p.compound_until_year },
       lifestyleRows,
-      withdrawal: { mode: p.withdrawal_mode, other, otherBtc: otherB0 },
       sensitivity: { tops: topRows, botReturns: botRows,
         // Always includes the headline, even when inputs sit outside the swept values.
         band: range([...topRows, ...botRows].map((r) => r.btc).concat([B0])) },
       levers,
       warnings: {
-        peakToTrend: pttOutOfRange ? { value: cycle.peakToTrend, suggestedLadder: usefulLadder(p),
+        // With the ladder chosen automatically this only fires when no ladder start fits.
+        peakToTrend: pttOutOfRange ? { value: cycle.peakToTrend,
           worstYear: Math.min(...ctx.path.g.slice(0, 8)) - 1 } : null,
-        // In range but not the ladder that restores ~1.45 (e.g. $200K top at 1.16).
-        ladderHint: p.cycle_enabled && cycle.valid && !pttOutOfRange ? usefulLadder(p) : null,
         hodlExhaustedYear: exhausted ? exhausted.year : null,
-        retirementPhase: PHASE_NAMES[phaseIndex(cycle, d.tRetire)],
-        sequence: seqRows,
       },
       series: {
         rows: sim.rows,
         years: sim.rows.map((r) => r.year),
-        price: ctx.path.P.slice(0, d.tLast + 2),
-        trend: ctx.path.trend.slice(0, d.tLast + 2),
-        soldLS: ctx.sold.LS,
-        soldDCA: ctx.sold.DCA,
+        sold: ctx.sold[p.withdrawal_mode],
       },
     };
   }
 
   // Input checks the UI shows before running the model.
   function validate(params) {
-    const p = withDefaults(params);
+    const p = Object.assign({}, DEFAULTS, params || {});
     const errors = [];
     const between = (k, lo, hi) => {
       if (!(Number.isFinite(p[k]) && p[k] >= lo && p[k] <= hi)) errors.push(`${k} must be between ${lo} and ${hi}.`);
     };
     between('current_age', 18, 80);
     between('end_age', 60, 105);
-    between('lifestyle_eur', 10000, 500000);
+    between('lifestyle_usd', 10000, 500000);
     between('bot_ratio', 0, 1);
     between('bot_return', 0, 0.5);
     between('inflation', 0, 0.1);
     between('top_usd', 50000, 2000000);
     between('top_year', 2028, 2030);
-    between('eurusd', 0.9, 1.4);
-    between('ladder_start_index', 0, 6);
     between('cash_yield', 0, 0.06);
+    if (p.ladder_start_index !== 'auto') between('ladder_start_index', 0, 6);
     ['current_age', 'retirement_age', 'end_age', 'compound_until_year', 'top_year', 'ladder_start_index']
       .forEach((k) => { if (Number.isFinite(p[k]) && !Number.isInteger(p[k])) errors.push(`${k} must be a whole number.`); });
-    if (!(p.spot_eur > 0)) errors.push('spot_eur must be above 0.');
+    if (!(p.spot_usd > 0)) errors.push('spot_usd must be above 0.');
     if (!(p.retirement_age >= p.current_age)) errors.push('Retirement age must be at least your current age.');
     if (!(p.end_age > p.retirement_age)) errors.push('End age must be after retirement age.');
     const retirementYear = GRID_START_YEAR + (p.retirement_age - p.current_age);
     if (!Number.isFinite(p.compound_until_year)) errors.push('Bots-stop year must be a year.');
     else if (Number.isFinite(retirementYear) && p.compound_until_year < retirementYear) {
-      errors.push(`Bots-stop year must be ${retirementYear} (your retirement year) or later. Scenario A already shows stopping the year before.`);
+      errors.push(`Bots-stop year must be ${retirementYear} (your retirement year) or later. The table already shows bots stopping when you retire.`);
     }
     return errors;
   }
 
   return {
     GRID_START_YEAR, STUB_YEARS, TIER_LENGTH, CAGR_LADDER, DEV, PHASE_NAMES, PTT_TARGET, PTT_RANGE,
-    DEFAULTS, derive, schedule, rate, solveCycle, growth, prepare, run, endingBalance, solve,
-    tierInvariantErrors, suggestLadderIndex, usefulLadder, phaseIndex, results, validate,
+    FALLBACK_SPOT_USD, DEFAULTS, derive, schedule, rate, solveCycle, growth, prepare, run,
+    endingBalance, solve, tierInvariantErrors, suggestLadderIndex, phaseIndex, results, validate,
   };
 });
