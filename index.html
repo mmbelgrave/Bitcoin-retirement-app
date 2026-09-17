@@ -281,6 +281,7 @@
   const usd = (x) => '$' + Math.round(x).toLocaleString('en-US');
   const usdK = (x) => '$' + Math.round(x / 1000) + 'K';
   const pct = (x) => (x * 100).toFixed(x * 100 % 1 ? 1 : 0) + '%';
+  const pct1 = (x) => (x * 100).toFixed(1) + '%'; // blended trend growth, always one decimal
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   // Live price state. `null` until the fetch settles.
@@ -518,7 +519,7 @@
     const stopYear = p.compound_until_year;
 
     $('compound_until_year').min = d.retirementYear;
-    $('trend-info').innerHTML = `Trend growth now: <strong>${pct(r.cycle.schedule[0])}/yr</strong>` +
+    $('trend-info').innerHTML = `Trend growth now: <strong>${pct1(r.cycle.schedule[0])}/yr</strong>` +
       `<small>Chosen automatically to fit your 2029 top and today's price.</small>`;
 
     // Headline
@@ -540,7 +541,7 @@
     ].map(([l, v]) => `<div class="stat"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('') +
       `<div class="stat wide"><div class="label">Your 2029 top vs the long-run trend</div>` +
       `<div class="value">${ptt.toFixed(2)}×</div><div class="label">${usd(p.top_usd)} is ${ptt.toFixed(2)}× the trend price for end of 2029 ` +
-      `(${usd(r.cycle.trendAtTop)}). The trend starts at today's price and grows ${pct(r.cycle.schedule[0])}/yr. ` +
+      `(${usd(r.cycle.trendAtTop)}). The trend starts at today's price and grows ${pct1(r.cycle.schedule[0])}/yr. ` +
       `Past cycle tops ran 2–3× above trend; this model assumes milder cycles.</div></div>`;
 
     // Notices
@@ -635,7 +636,7 @@
         ? `Today's BTC price (${usd(p.spot_usd)}) comes live from CoinGecko when the page opens; your browser asks CoinGecko directly. It is used as the price on 1 January 2027.`
         : `The live BTC price could not be loaded, so ${usd(p.spot_usd)} is used as the price on 1 January 2027.`,
       `Spending grows with inflation of ${pct(p.inflation)}/yr; the lifestyle amount is in today's dollars.`,
-      `Long-run trend growth steps down every 4 years: ${sched}%, then stays at 7%. The starting step is picked so your 2029 top is about 1.45× the trend (now ${pct(r.cycle.schedule[0])}).`,
+      `Long-run trend growth steps down every 4 years: ${sched}%, then stays at 7%. The starting point is set automatically, between two steps if needed, so your 2029 top is 1.45× the trend or as close as the steps allow (now ${pct1(r.cycle.schedule[0])}). Because of this, a higher BTC price today can mean slower growth later and so more BTC needed.`,
       `A 4-year cycle moves the price around that trend, with the top at the end of 2029 (about 20 months after the next halving, estimated April 2028). Cycle lows sit on the trend, swings get smaller as growth slows, and over each 4 years the cycle adds no extra return. Today's price is assumed to be at a cycle low.`,
       `Bots grow the number of BTC by ${pct(p.bot_return)}/yr after fees and losses, only while they run. This is an assumption, not a track record.`,
       'BTC is sold every month to pay expenses.',
