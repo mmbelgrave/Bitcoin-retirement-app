@@ -19,8 +19,10 @@
     --border: rgba(11, 11, 11, 0.10);
     --series-1: #2a78d6;
     --series-2: #eb6834;
+    --series-3: #1baf7a;
     --series-1-wash: rgba(42, 120, 214, 0.14);
     --series-2-wash: rgba(235, 104, 52, 0.14);
+    --series-3-wash: rgba(27, 175, 122, 0.16);
     --warn-bg: #fff6e0;
     --warn-edge: #fab219;
     --crit-bg: #fdecec;
@@ -34,8 +36,8 @@
       color-scheme: dark;
       --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
       --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10); --error-text: #ef7b7b;
-      --series-1: #3987e5; --series-2: #d95926;
-      --series-1-wash: rgba(57, 135, 229, 0.20); --series-2-wash: rgba(217, 89, 38, 0.20);
+      --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+      --series-1-wash: rgba(57, 135, 229, 0.20); --series-2-wash: rgba(217, 89, 38, 0.20); --series-3-wash: rgba(25, 158, 112, 0.22);
       --warn-bg: #2e2610; --crit-bg: #2e1616; --info-bg: #14223a; --focus: #3987e5;
     }
   }
@@ -43,8 +45,8 @@
     color-scheme: dark;
     --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
     --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10); --error-text: #ef7b7b;
-    --series-1: #3987e5; --series-2: #d95926;
-    --series-1-wash: rgba(57, 135, 229, 0.20); --series-2-wash: rgba(217, 89, 38, 0.20);
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+    --series-1-wash: rgba(57, 135, 229, 0.20); --series-2-wash: rgba(217, 89, 38, 0.20); --series-3-wash: rgba(25, 158, 112, 0.22);
     --warn-bg: #2e2610; --crit-bg: #2e1616; --info-bg: #14223a; --focus: #3987e5;
   }
 
@@ -56,6 +58,8 @@
   header { padding: 20px 16px 8px; max-width: 1280px; margin: 0 auto; }
   header h1 { margin: 0; font-size: 22px; }
   header p { margin: 4px 0 0; color: var(--ink-2); }
+  .page-note { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+  .disclaimer { border: 2px solid var(--crit-edge); background: var(--crit-bg); border-radius: 10px; padding: 10px 14px; margin: 4px 0 8px; }
   .layout {
     max-width: 1280px; margin: 0 auto; padding: 8px 16px 48px;
     display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start;
@@ -67,7 +71,6 @@
     padding: 16px; margin-bottom: 16px; min-width: 0;
   }
   .card h2 { font-size: 16px; margin: 0 0 4px; }
-  .card h3 { font-size: 14px; margin: 16px 0 6px; color: var(--ink-2); }
   .sub { color: var(--ink-2); margin: 0 0 12px; font-size: 14px; }
 
   /* Inputs */
@@ -77,13 +80,14 @@
   legend { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 6px; }
   .field { display: grid; grid-template-columns: 1fr 112px; gap: 8px; align-items: center; margin-bottom: 8px; }
   .field label { font-size: 14px; }
-  .field small { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
-  input[type=number], select {
+  .field small, .info small { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
+  .info { font-size: 14px; margin: 4px 0 8px; }
+  .info strong { font-variant-numeric: tabular-nums; }
+  input[type=number] {
     width: 100%; font: inherit; font-variant-numeric: tabular-nums; color: var(--ink);
     background: var(--page); border: 1px solid var(--axis); border-radius: 6px; padding: 5px 8px;
   }
-  input[type=checkbox] { width: 18px; height: 18px; justify-self: end; }
-  input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible {
+  input:focus-visible, button:focus-visible, summary:focus-visible, .marker:focus-visible {
     outline: 2px solid var(--focus); outline-offset: 2px;
   }
   input[aria-invalid=true] { border-color: var(--crit-edge); }
@@ -92,7 +96,6 @@
     font: inherit; border-radius: 6px; padding: 6px 12px; cursor: pointer;
     border: 1px solid var(--axis); background: var(--page); color: var(--ink);
   }
-  button.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
 
   /* Notices */
   .notice { border-left: 4px solid; border-radius: 6px; padding: 10px 12px; margin: 0 0 12px; font-size: 14px; }
@@ -101,9 +104,7 @@
   .notice.warn { background: var(--warn-bg); border-color: var(--warn-edge); }
   .notice.info { background: var(--info-bg); border-color: var(--info-edge); }
   .notice p { margin: 4px 0 0; }
-  .notice button { margin-top: 8px; }
-  .disclaimer { border: 2px solid var(--crit-edge); background: var(--crit-bg); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
-  .disclaimer strong { display: block; margin-bottom: 2px; }
+  .notice.crit ul { margin: 6px 0 0; padding-left: 20px; }
 
   /* Headline */
   .hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
@@ -119,27 +120,27 @@
   .stat { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
   .stat .label { font-size: 12px; color: var(--ink-2); }
   .stat .value { font-size: 20px; font-weight: 600; }
-  .ptt { grid-column: 1 / -1; }
-  .ptt .value { font-size: 28px; }
+  .stat.wide { grid-column: 1 / -1; }
+  .stat.wide .value { font-size: 26px; }
 
   /* Tables */
   .tablewrap { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
-  th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th, td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  td { white-space: nowrap; }
+  th { color: var(--ink-2); font-weight: 600; vertical-align: bottom; }
   th:first-child, td:first-child { text-align: left; }
-  th { color: var(--ink-2); font-weight: 600; }
   tr.current td { font-weight: 650; }
-  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
-  @media (max-width: 640px) { .two { grid-template-columns: minmax(0, 1fr); } }
   .gap { font-weight: 600; }
 
   /* Levers */
-  .lever { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr) 90px; gap: 10px; align-items: center; padding: 6px 0; font-size: 14px; }
-  @media (max-width: 640px) { .lever { grid-template-columns: minmax(0, 1fr) 80px; } .lever .track { grid-column: 1 / -1; grid-row: 2; } }
-  .track { position: relative; height: 18px; }
-  .track::before { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 1px; background: var(--grid); }
-  .track b { position: absolute; top: 3px; height: 12px; border-radius: 4px; background: var(--series-1); min-width: 4px; }
-  .track i { position: absolute; top: 0; width: 2px; height: 18px; background: var(--ink); }
+  .lever { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr) 110px; gap: 10px; align-items: end; padding: 8px 0; font-size: 14px; }
+  @media (max-width: 640px) { .lever { grid-template-columns: minmax(0, 1fr) 100px; } .lever .track { grid-column: 1 / -1; grid-row: 2; } }
+  .track { position: relative; height: 34px; margin: 0 22px; }
+  .track::before { content: ""; position: absolute; left: -22px; right: -22px; top: 24px; height: 1px; background: var(--grid); }
+  .track b { position: absolute; top: 19px; height: 12px; border-radius: 4px; background: var(--series-1); min-width: 4px; }
+  .marker { position: absolute; top: 15px; width: 3px; height: 20px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); box-shadow: 0 0 0 2px var(--surface); cursor: default; }
+  .marker-label { position: absolute; top: -2px; transform: translateX(-50%); font-size: 12px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .lever .rng { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
 
   /* Charts */
@@ -147,8 +148,7 @@
   .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
   .chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); margin: 0 0 6px; }
-  .legend span::before { content: ""; display: inline-block; width: 14px; height: 3px; border-radius: 2px; background: var(--c); vertical-align: middle; margin-right: 6px; }
-  .legend span.area::before { height: 10px; }
+  .legend span::before { content: ""; display: inline-block; width: 14px; height: 10px; border-radius: 2px; background: var(--c); vertical-align: middle; margin-right: 6px; }
   .tip {
     position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
     border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px;
@@ -162,8 +162,6 @@
   ol.assumptions li { margin-bottom: 4px; }
   .muted { color: var(--muted); }
   .errors { color: var(--error-text); font-size: 14px; }
-  .page-note { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
-  .notice.crit ul { margin: 6px 0 0; padding-left: 20px; }
 </style>
 </head>
 <body>
@@ -174,10 +172,7 @@
 
 <div class="page-note">
   <div class="disclaimer" role="note">
-    <strong>This is a scenario, not a prediction.</strong>
-    It is not financial advice. Every number depends on assumptions about Bitcoin's future
-    price that nobody can know. The <span id="disclaimer-bot">20%</span> bot return is an assumption, not a guarantee, and it
-    has never been tested through a full drawdown.
+    <strong>Not financial advice.</strong> Past performance is no guarantee of future results.
   </div>
 </div>
 
@@ -188,35 +183,24 @@
         <legend>You</legend>
         <div class="field"><label for="current_age">Age today</label><input id="current_age" type="number" min="18" max="80" step="1"></div>
         <div class="field"><label for="retirement_age">Retirement age<small>Age at first withdrawal</small></label><input id="retirement_age" type="number" min="18" max="104" step="1"></div>
-        <div class="field"><label for="end_age">Funded until age<small>Stack reaches zero here</small></label><input id="end_age" type="number" min="60" max="105" step="1"></div>
-        <div class="field"><label for="lifestyle_eur">Lifestyle €/yr<small>In today's money</small></label><input id="lifestyle_eur" type="number" min="10000" max="500000" step="5000"></div>
+        <div class="field"><label for="end_age">Funded until age<small>Portfolio reaches zero here</small></label><input id="end_age" type="number" min="60" max="105" step="1"></div>
+        <div class="field"><label for="lifestyle_usd">Lifestyle $/yr<small>In today's dollars</small></label><input id="lifestyle_usd" type="number" min="10000" max="500000" step="5000"></div>
         <div class="field"><label for="inflation">Spending inflation %</label><input id="inflation" type="number" min="0" max="10" step="0.5" data-pct></div>
       </fieldset>
       <fieldset>
         <legend>Bots</legend>
-        <div class="field"><label for="bot_ratio">Share run by bots %</label><input id="bot_ratio" type="number" min="0" max="100" step="5" data-pct></div>
-        <div class="field"><label for="bot_return">Bot return %/yr<small>Growth in BTC count, not €</small></label><input id="bot_return" type="number" min="0" max="50" step="1" data-pct></div>
-        <div class="field"><label for="compound_until_year">Bots stop after year</label><input id="compound_until_year" type="number" min="2026" max="2100" step="1"></div>
-      </fieldset>
-      <fieldset>
-        <legend>Withdrawals</legend>
-        <div class="field"><label for="withdrawal_mode">Method</label>
-          <select id="withdrawal_mode"><option value="DCA">DCA (monthly)</option><option value="LS">LS (1 Jan)</option></select></div>
-        <div class="field"><label for="cash_yield">Cash yield %<small>LS only</small></label><input id="cash_yield" type="number" min="0" max="6" step="0.5" data-pct></div>
+        <div class="field"><label for="bot_ratio">% Portfolio in bots</label><input id="bot_ratio" type="number" min="0" max="100" step="5" data-pct></div>
+        <div class="field"><label for="bot_return">Bot return %/yr<small>Growth in BTC count, not $</small></label><input id="bot_return" type="number" min="0" max="50" step="1" data-pct></div>
+        <div class="field"><label for="compound_until_year">Bots stop after year</label><input id="compound_until_year" type="number" min="2027" max="2100" step="1"></div>
       </fieldset>
       <fieldset>
         <legend>Bitcoin price</legend>
-        <div class="field"><label for="spot_eur">BTC spot €</label><input id="spot_eur" type="number" min="1" step="1000"></div>
-        <div class="field"><label for="top_usd">Cycle top $</label><input id="top_usd" type="number" min="50000" max="2000000" step="10000"></div>
-        <div class="field"><label for="top_year">Top on 1 Jan of</label>
-          <select id="top_year"><option>2028</option><option>2029</option><option>2030</option></select></div>
-        <div class="field"><label for="eurusd">EUR/USD</label><input id="eurusd" type="number" min="0.9" max="1.4" step="0.01"></div>
-        <div class="field"><label for="ladder_start_index">CAGR ladder start<small id="ladder_hint"></small></label>
-          <select id="ladder_start_index"></select></div>
-        <div class="field"><label for="cycle_enabled">4-year cycle on<small>Off = original chart</small></label><input id="cycle_enabled" type="checkbox"></div>
+        <div class="info" id="price-info" aria-live="polite">BTC price now: <strong>loading…</strong></div>
+        <div class="field"><label for="top_usd">Prediction cycle top end 2029 ($)</label><input id="top_usd" type="number" min="50000" max="2000000" step="10000"></div>
+        <div class="info" id="trend-info"></div>
       </fieldset>
       <fieldset>
-        <legend>Lifestyle comparison €/yr</legend>
+        <legend>Lifestyle comparison $/yr</legend>
         <div class="triple">
           <input id="lifestyle_0" type="number" min="10000" max="500000" step="5000" aria-label="Lifestyle 1">
           <input id="lifestyle_1" type="number" min="10000" max="500000" step="5000" aria-label="Lifestyle 2">
@@ -229,85 +213,57 @@
   </aside>
 
   <main>
-    <div id="stale" class="notice crit" role="alert" hidden></div>
-    <div id="results">
-
-    <section class="card" aria-labelledby="h-headline">
-      <h2 id="h-headline">BTC you need to hold today</h2>
-      <p class="sub" id="headline-sub"></p>
-      <div class="hero">
-        <div>
-          <div class="hero-num" id="hero"></div>
-          <div class="band">
-            Range when varying the two assumptions that move it most
-            (cycle top $150K–$400K with ladder auto-corrected, bot return 0–25%):
-            <div class="bandbar" id="bandbar"></div>
-            <div class="bandlabels" id="bandlabels"></div>
+    <div id="stale" class="notice info" role="status">Getting the live BTC price…</div>
+    <div id="results" hidden>
+      <section class="card" aria-labelledby="h-headline">
+        <h2 id="h-headline">BTC you need to hold today</h2>
+        <p class="sub" id="headline-sub"></p>
+        <div class="hero">
+          <div>
+            <div class="hero-num" id="hero"></div>
+            <div class="band">
+              Range if the 2029 top lands anywhere from $150K to $400K, or the bots return 0–25% a year:
+              <div class="bandbar" id="bandbar"></div>
+              <div class="bandlabels" id="bandlabels"></div>
+            </div>
           </div>
+          <div class="stats" id="stats"></div>
         </div>
-        <div class="stats" id="stats"></div>
-      </div>
-    </section>
+      </section>
 
-    <div id="notices" aria-live="polite"></div>
+      <div id="notices" aria-live="polite"></div>
 
-    <section class="card" aria-labelledby="h-levers">
-      <h2 id="h-levers">What actually moves the answer</h2>
-      <p class="sub">Each bar is the range of BTC needed when only that lever changes. Black tick = your current answer. Ranked by spread.</p>
-      <div id="levers"></div>
-    </section>
+      <section class="card" aria-labelledby="h-levers">
+        <h2 id="h-levers">What moves the answer</h2>
+        <p class="sub">Each bar shows how far the BTC needed moves when only that assumption changes. The marker and its number are your current answer. Ranked from biggest effect.</p>
+        <div id="levers"></div>
+      </section>
 
-    <section class="card" aria-labelledby="h-scen">
-      <h2 id="h-scen">When the bots stop</h2>
-      <p class="sub" id="scen-sub"></p>
-      <div class="two">
+      <section class="card" aria-labelledby="h-scen">
+        <h2 id="h-scen">When the bots stop</h2>
+        <p class="sub" id="scen-sub"></p>
         <div class="tablewrap"><table id="scen-table"></table></div>
-        <div class="tablewrap"><table id="life-table"></table></div>
-      </div>
-    </section>
+      </section>
 
-    <section class="card" aria-labelledby="h-draw">
-      <h2 id="h-draw">BTC drawn per year</h2>
-      <p class="sub">The same € bill costs more coins in a bear year. LS sells everything on 1 Jan (sawtooth); DCA sells monthly (smoother).</p>
-      <div class="legend"><span style="--c: var(--series-1)">DCA (monthly)</span><span style="--c: var(--series-2)">LS (1 Jan)</span></div>
-      <div class="chart" id="chart-draw"></div>
-      <details><summary>Show as table</summary><div class="tablewrap" id="table-draw"></div></details>
-    </section>
+      <section class="card" aria-labelledby="h-draw">
+        <h2 id="h-draw">BTC sold per year</h2>
+        <p class="sub">BTC sold each month to pay your expenses, added up per year. The same dollar amount costs more BTC in a bear year and less at a cycle top.</p>
+        <div class="chart" id="chart-draw"></div>
+        <details><summary>Show as table</summary><div class="tablewrap" id="table-draw"></div></details>
+      </section>
 
-    <section class="card" aria-labelledby="h-price">
-      <h2 id="h-price">Price path, 1 January (log scale)</h2>
-      <p class="sub">Cycle overlaid on the stepped-down CAGR trend. Each 4-year block returns exactly its tier CAGR.</p>
-      <div class="legend"><span style="--c: var(--series-1)">BTC price with cycle</span><span style="--c: var(--muted)">Trend</span></div>
-      <div class="chart" id="chart-price"></div>
-      <details><summary>Show as table</summary><div class="tablewrap" id="table-price"></div></details>
-    </section>
+      <section class="card" aria-labelledby="h-stack">
+        <h2 id="h-stack">Your portfolio over time</h2>
+        <p class="sub" id="stack-sub"></p>
+        <div class="legend"><span style="--c: var(--series-1)">HODL portfolio</span><span style="--c: var(--series-2)">Bot portfolio</span><span style="--c: var(--series-3)">Combined portfolio</span></div>
+        <div class="chart" id="chart-stack"></div>
+        <details><summary>Show as table</summary><div class="tablewrap" id="table-stack"></div></details>
+      </section>
 
-    <section class="card" aria-labelledby="h-stack">
-      <h2 id="h-stack">Stack balance, 1 January</h2>
-      <p class="sub" id="stack-sub"></p>
-      <div class="legend"><span class="area" style="--c: var(--series-1)">Hodl sleeve</span><span class="area" style="--c: var(--series-2)">Bot sleeve</span></div>
-      <div class="chart" id="chart-stack"></div>
-      <details><summary>Show as table</summary><div class="tablewrap" id="table-stack"></div></details>
-    </section>
-
-    <section class="card" aria-labelledby="h-seq">
-      <h2 id="h-seq">Sequence risk: where in the cycle you retire</h2>
-      <p class="sub" id="seq-sub"></p>
-      <div class="tablewrap"><table id="seq-table"></table></div>
-    </section>
-
-    <section class="card" aria-labelledby="h-assume">
-      <h2 id="h-assume">Assumptions behind every number</h2>
-      <ol class="assumptions" id="assumptions"></ol>
-    </section>
-
-    <section class="card" aria-labelledby="h-tax">
-      <h2 id="h-tax">Portugal tax note (not modelled)</h2>
-      <p class="sub" style="margin:0">Monthly DCA means 12+ disposals a year, each needing its own acquisition-date tracking
-        to establish the 365-day holding period. Frequent bot trading can also be treated as
-        Category B business income rather than the flat 28% rate. Set up records before drawdown
-        begins, and take professional advice — this tool models none of it.</p>
-    </section>
+      <section class="card" aria-labelledby="h-assume">
+        <h2 id="h-assume">Assumptions not shown above</h2>
+        <ol class="assumptions" id="assumptions"></ol>
+      </section>
     </div>
   </main>
 </div>
@@ -318,37 +274,25 @@
   'use strict';
   const M = window.BTCModel;
   const $ = (id) => document.getElementById(id);
-  const STORE_KEY = 'btc-retirement-model:v1';
-  const PHASE_TEXT = {
-    'recovery': 'recovery year (starts at the cycle low)',
-    'run-up': 'run-up year',
-    'peak': 'peak year (the year before the top)',
-    'bear': 'bear year (starts at the cycle top)',
-  };
+  const STORE_KEY = 'btc-retirement-model:v2';
+  const PRICE_URL = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_last_updated_at=true';
 
   const btc = (x) => (Number.isFinite(x) ? x.toFixed(2) : '—');
-  const eur = (x) => '€' + Math.round(x).toLocaleString('en-GB');
-  const eurK = (x) => x >= 1e6 ? '€' + (x / 1e6).toFixed(x >= 1e7 ? 0 : 1) + 'M' : '€' + Math.round(x / 1000) + 'K';
+  const usd = (x) => '$' + Math.round(x).toLocaleString('en-US');
+  const usdK = (x) => '$' + Math.round(x / 1000) + 'K';
   const pct = (x) => (x * 100).toFixed(x * 100 % 1 ? 1 : 0) + '%';
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  // Ladder options
-  M.CAGR_LADDER.forEach((r, i) => {
-    const o = document.createElement('option');
-    o.value = i; o.textContent = i + ' · ' + M.CAGR_LADDER.slice(i).map((x) => Math.round(x * 100)).join('→') + '%';
-    $('ladder_start_index').appendChild(o);
-  });
+  // Live price state. `null` until the fetch settles.
+  let price = null;
 
-  const FIELDS = ['current_age', 'retirement_age', 'end_age', 'lifestyle_eur', 'inflation', 'bot_ratio', 'bot_return',
-    'compound_until_year', 'withdrawal_mode', 'cash_yield', 'spot_eur', 'top_usd', 'top_year', 'eurusd',
-    'ladder_start_index', 'cycle_enabled'];
+  const FIELDS = ['current_age', 'retirement_age', 'end_age', 'lifestyle_usd', 'inflation', 'bot_ratio', 'bot_return',
+    'compound_until_year', 'top_usd'];
 
   function writeInputs(p) {
     FIELDS.forEach((k) => {
       const el = $(k);
-      if (el.type === 'checkbox') el.checked = !!p[k];
-      else if (el.hasAttribute('data-pct')) el.value = +(p[k] * 100).toFixed(2);
-      else el.value = p[k];
+      el.value = el.hasAttribute('data-pct') ? +(p[k] * 100).toFixed(2) : p[k];
     });
     p.lifestyles.forEach((v, i) => { $('lifestyle_' + i).value = v; });
   }
@@ -357,23 +301,52 @@
     const p = {};
     FIELDS.forEach((k) => {
       const el = $(k);
-      if (el.type === 'checkbox') p[k] = el.checked;
-      else if (k === 'withdrawal_mode') p[k] = el.value;
-      else p[k] = el.hasAttribute('data-pct') ? parseFloat(el.value) / 100 : parseFloat(el.value);
+      p[k] = el.hasAttribute('data-pct') ? parseFloat(el.value) / 100 : parseFloat(el.value);
     });
     p.lifestyles = [0, 1, 2].map((i) => parseFloat($('lifestyle_' + i).value));
+    p.spot_usd = price ? price.usd : M.FALLBACK_SPOT_USD;
     return p;
   }
 
   function load() {
+    const base = Object.assign({}, M.DEFAULTS);
     try {
       const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-      if (saved && typeof saved === 'object') return Object.assign({}, M.DEFAULTS, saved);
+      if (saved && typeof saved === 'object') {
+        FIELDS.concat(['lifestyles']).forEach((k) => { if (k in saved) base[k] = saved[k]; });
+      }
     } catch (e) { /* storage unavailable: use defaults */ }
-    return Object.assign({}, M.DEFAULTS);
+    return base;
   }
   function save(p) {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(p)); } catch (e) { /* ignore */ }
+    const keep = {};
+    FIELDS.concat(['lifestyles']).forEach((k) => { keep[k] = p[k]; });
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(keep)); } catch (e) { /* ignore */ }
+  }
+
+  async function fetchPrice() {
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = setTimeout(() => ctrl && ctrl.abort(), 6000);
+    try {
+      const r = await fetch(PRICE_URL, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      const v = j && j.bitcoin && j.bitcoin.usd;
+      if (!(typeof v === 'number' && v > 0)) throw new Error('unexpected response');
+      const when = j.bitcoin.last_updated_at ? new Date(j.bitcoin.last_updated_at * 1000) : new Date();
+      return { usd: v, live: true, when };
+    } catch (e) {
+      return { usd: M.FALLBACK_SPOT_USD, live: false };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function renderPriceInfo() {
+    if (!price) return;
+    $('price-info').innerHTML = price.live
+      ? `BTC price now: <strong>${usd(price.usd)}</strong><small>Live from CoinGecko, ${esc(price.when.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }))}</small>`
+      : `BTC price now: <strong>${usd(price.usd)}</strong><small>Live price unavailable, so a fallback of ${usd(M.FALLBACK_SPOT_USD)} is used. Reload the page to try again.</small>`;
   }
 
   // ---------- Charts (hand-drawn SVG, no libraries) ----------
@@ -394,48 +367,39 @@
     for (let v = Math.floor(min / step) * step; v <= end + step * 1e-9; v += step) ticks.push(+v.toFixed(10));
     return ticks;
   }
-  function logTicks(min, max) {
-    const out = [];
-    for (let e = Math.floor(Math.log10(min)); e <= Math.ceil(Math.log10(max)); e++) {
-      [1, 2, 5].forEach((m) => { const v = m * Math.pow(10, e); if (v >= min * 0.999 && v <= max * 1.001) out.push(v); });
-    }
-    return out;
-  }
 
   /*
-   * spec: { container, x: [years], series: [{name, color, values, area?}], stacked?, log?, yFmt, tipFmt, height }
+   * spec: { container, label, x: [years], series: [{name, color, wash?, values (null = not shown), stack?}],
+   *         stacked?, yFmt, tipFmt, tipExtra?, height }
+   * In a stacked chart, series with stack:false start from zero instead of on top of the others.
    */
   function drawChart(spec) {
     const box = spec.container;
     box.innerHTML = '';
     const W = Math.max(300, box.clientWidth || 600);
     const H = spec.height || 260;
-    const m = { l: 56, r: 16, t: 10, b: 30 };
+    const m = { l: 48, r: 16, t: 10, b: 30 };
     const iw = W - m.l - m.r, ih = H - m.t - m.b;
     const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.label }, box);
     const n = spec.x.length;
     const xs = (i) => m.l + (n <= 1 ? iw / 2 : (i / (n - 1)) * iw);
+    const has = (v) => v !== null && v !== undefined && Number.isFinite(v);
 
-    const stackTop = spec.series.map(() => new Array(n).fill(0));
-    let yMin = Infinity, yMax = -Infinity;
+    const base = spec.series.map(() => new Array(n).fill(0));
+    const top = spec.series.map(() => new Array(n).fill(null));
+    const running = new Array(n).fill(0);
+    let yMax = 0;
     spec.series.forEach((s, si) => s.values.forEach((v, i) => {
-      const base = spec.stacked && si > 0 ? stackTop[si - 1][i] : 0;
-      stackTop[si][i] = base + (spec.stacked ? Math.max(0, v) : v);
-      yMax = Math.max(yMax, stackTop[si][i]);
-      yMin = Math.min(yMin, spec.stacked ? 0 : v);
+      if (!has(v)) return;
+      const b = spec.stacked && s.stack !== false ? running[i] : 0;
+      base[si][i] = b;
+      top[si][i] = b + Math.max(0, v);
+      if (spec.stacked && s.stack !== false) running[i] = top[si][i];
+      yMax = Math.max(yMax, top[si][i]);
     }));
-    let ys, ticks;
-    if (spec.log) {
-      yMin = yMin * 0.85; yMax = yMax * 1.15;
-      const a = Math.log(yMin), b = Math.log(yMax);
-      ys = (v) => m.t + ih - ((Math.log(v) - a) / (b - a)) * ih;
-      ticks = logTicks(yMin, yMax);
-    } else {
-      yMin = Math.min(0, yMin);
-      ticks = niceTicks(yMin, yMax * 1.05, 5);
-      yMax = ticks[ticks.length - 1];
-      ys = (v) => m.t + ih - ((v - yMin) / (yMax - yMin || 1)) * ih;
-    }
+    const ticks = niceTicks(0, yMax * 1.05 || 1, 5);
+    const yTop = ticks[ticks.length - 1];
+    const ys = (v) => m.t + ih - (v / (yTop || 1)) * ih;
 
     ticks.forEach((t) => {
       const y = ys(t);
@@ -449,16 +413,21 @@
       el('text', { x: xs(i), y: H - 6, 'text-anchor': 'middle' }, svg).textContent = yr;
     });
 
-    const pts = (arr) => arr.map((v, i) => `${xs(i).toFixed(1)},${ys(v).toFixed(1)}`).join(' ');
+    // Draw each run of consecutive defined points as its own area/line.
     spec.series.forEach((s, si) => {
-      const top = spec.stacked ? stackTop[si] : s.values;
-      if (spec.stacked) {
-        const bottom = si > 0 ? stackTop[si - 1] : new Array(n).fill(0);
-        const poly = pts(top) + ' ' + bottom.map((v, i) => `${xs(i).toFixed(1)},${ys(v).toFixed(1)}`).reverse().join(' ');
-        el('polygon', { points: poly, fill: s.wash }, svg);
+      let i = 0;
+      while (i < n) {
+        if (top[si][i] === null) { i++; continue; }
+        const run = [];
+        while (i < n && top[si][i] !== null) run.push(i++);
+        const upper = run.map((k) => `${xs(k).toFixed(1)},${ys(top[si][k]).toFixed(1)}`).join(' ');
+        if (s.wash) {
+          const lower = run.slice().reverse().map((k) => `${xs(k).toFixed(1)},${ys(base[si][k]).toFixed(1)}`).join(' ');
+          el('polygon', { points: upper + ' ' + lower, fill: s.wash }, svg);
+        }
+        el('polyline', { points: upper, fill: 'none', stroke: s.color, 'stroke-width': 2,
+          'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
       }
-      el('polyline', { points: pts(top), fill: 'none', stroke: s.color, 'stroke-width': 2,
-        'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
     });
 
     // Hover layer: crosshair + tooltip
@@ -475,17 +444,18 @@
       const x = xs(cur);
       cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('visibility', 'visible');
       spec.series.forEach((s, si) => {
-        const v = spec.stacked ? stackTop[si][cur] : s.values[cur];
-        dots[si].setAttribute('cx', x); dots[si].setAttribute('cy', ys(v)); dots[si].setAttribute('visibility', 'visible');
+        const ok = top[si][cur] !== null;
+        dots[si].setAttribute('visibility', ok ? 'visible' : 'hidden');
+        if (ok) { dots[si].setAttribute('cx', x); dots[si].setAttribute('cy', ys(top[si][cur])); }
       });
-      tip.innerHTML = `<strong>${spec.x[cur]}</strong>` + spec.series.map((s) =>
+      tip.innerHTML = `<strong>${spec.x[cur]}</strong>` + spec.series.filter((s) => has(s.values[cur]) && !(s.hideInTip && s.hideInTip(cur))).map((s) =>
         `<div><span class="k" style="background:${s.color}"></span>${esc(s.name)}: ${spec.tipFmt(s.values[cur])}</div>`).join('') +
         (spec.tipExtra ? spec.tipExtra(cur) : '');
       tip.style.display = 'block';
-      const scale = box.clientWidth / W;
-      const left = x * scale;
-      tip.style.left = Math.min(Math.max(0, left + 12), box.clientWidth - tip.offsetWidth) + 'px';
-      if (left + 12 + tip.offsetWidth > box.clientWidth) tip.style.left = Math.max(0, left - tip.offsetWidth - 12) + 'px';
+      const left = x * (box.clientWidth / W);
+      let pos = left + 12;
+      if (pos + tip.offsetWidth > box.clientWidth) pos = left - tip.offsetWidth - 12;
+      tip.style.left = Math.max(0, pos) + 'px';
       tip.style.top = '8px';
     }
     function hide() {
@@ -513,9 +483,10 @@
   }
 
   // ---------- Render ----------
-  let last = null;
+  let rendered = false;
 
   function render() {
+    if (!price) return;
     const p = readInputs();
     const errors = M.validate(p);
     p.lifestyles.forEach((v) => { if (!(v >= 10000 && v <= 500000)) errors.push('Comparison lifestyles must be between 10000 and 500000.'); });
@@ -526,9 +497,10 @@
         const k = FIELDS.find((f) => msg.startsWith(f)) || byText[Object.keys(byText).find((t) => msg.startsWith(t))];
         if (k) $(k).setAttribute('aria-invalid', 'true');
       });
-      const list = '<ul>' + errors.map((e) => '<li>' + esc(e.replace(/_/g, ' ')) + '</li>').join('') + '</ul>';
+      const list = '<ul>' + errors.map((e) => '<li>' + esc(e.replace(/_usd/g, '').replace(/_/g, ' ')) + '</li>').join('') + '</ul>';
       $('errors').innerHTML = '<p>Fix these to update the results:</p>' + list;
       // Hide old numbers rather than leave them readable next to inputs they don't match.
+      $('stale').className = 'notice crit';
       $('stale').innerHTML = '<strong>⚠ No results: some inputs need fixing</strong>' + list;
       $('stale').hidden = false;
       $('results').hidden = true;
@@ -538,154 +510,137 @@
     $('stale').hidden = true;
     $('results').hidden = false;
     save(p);
+    rendered = true;
 
     const r = M.results(p);
-    last = r;
     const d = r.derived;
     const s = r.series;
+    const stopYear = p.compound_until_year;
 
-    // Ladder hint beside the select; bots may not stop before retirement (SPEC §3)
-    $('ladder_hint').textContent = 'Trend starts at ' + pct(r.cycle.schedule[0]);
     $('compound_until_year').min = d.retirementYear;
-    $('disclaimer-bot').textContent = pct(p.bot_return); // entered value, default 20%
+    $('trend-info').innerHTML = `Trend growth now: <strong>${pct(r.cycle.schedule[0])}/yr</strong>` +
+      `<small>Chosen automatically to fit your 2029 top and today's price.</small>`;
 
     // Headline
-    $('headline-sub').textContent = `Retire in ${d.retirementYear} at ${p.retirement_age}, ${eur(p.lifestyle_eur)}/yr in today's money, ` +
-      `funded to age ${p.end_age}. Bots stop after ${p.compound_until_year}. ${p.withdrawal_mode === 'DCA' ? 'Monthly DCA' : 'Lump sum on 1 Jan'} withdrawals.`;
+    $('headline-sub').textContent = `Retire in ${d.retirementYear} at ${p.retirement_age}, ${usd(p.lifestyle_usd)}/yr in today's dollars, ` +
+      `funded to age ${p.end_age}. Bots stop after ${stopYear}. BTC at ${usd(p.spot_usd)} today.`;
     $('hero').innerHTML = `${btc(r.btcNeeded)} <span>BTC</span>`;
     const band = r.sensitivity.band;
-    const lo = band.min, hi = band.max; // band includes the headline
-    const scale = (v) => ((v - lo) / (hi - lo || 1)) * 100;
-    $('bandbar').innerHTML = `<b style="left:${scale(band.min)}%;width:${scale(band.max) - scale(band.min)}%"></b>` +
-      `<i style="left:calc(${scale(r.btcNeeded)}% - 2px)" title="Your answer"></i>`;
+    const scale = (v) => ((v - band.min) / (band.max - band.min || 1)) * 100;
+    $('bandbar').innerHTML = `<b style="left:0;width:100%"></b>` +
+      `<i style="left:calc(${scale(r.btcNeeded)}% - 2px)" title="Your answer: ${btc(r.btcNeeded)} BTC"></i>`;
     $('bandlabels').innerHTML = `<span>${btc(band.min)} BTC</span><span>${btc(band.max)} BTC</span>`;
 
-    const pttText = p.cycle_enabled ? r.cycle.peakToTrend.toFixed(2) + '×' : 'cycle off';
+    const ptt = r.cycle.peakToTrend;
     $('stats').innerHTML = [
-      ['Value today', eur(r.eurValue)],
-      ['Stack on 1 Jan ' + d.retirementYear, btc(r.btcAtRetirement) + ' BTC'],
-      ['Bot sleeve today', btc(r.botSleeve) + ' BTC'],
-      ['Hodl sleeve today', btc(r.hodlSleeve) + ' BTC'],
+      ['Value today', usd(r.usdValue)],
+      ['Portfolio on 1 Jan ' + d.retirementYear, btc(r.btcAtRetirement) + ' BTC'],
+      ['Bot portfolio today', btc(r.botPortfolio) + ' BTC'],
+      ['HODL portfolio today', btc(r.hodlPortfolio) + ' BTC'],
     ].map(([l, v]) => `<div class="stat"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('') +
-      `<div class="stat ptt"><div class="label">Peak-to-trend: how far cycle tops run above trend (the most opinionated number here)</div>` +
-      `<div class="value">${pttText}</div><div class="label">Historically 2–3×. This model assumes cycles keep getting milder.</div></div>`;
+      `<div class="stat wide"><div class="label">Your 2029 top vs the long-run trend</div>` +
+      `<div class="value">${ptt.toFixed(2)}×</div><div class="label">${usd(p.top_usd)} is ${ptt.toFixed(2)}× the trend price for end of 2029 ` +
+      `(${usd(r.cycle.trendAtTop)}). The trend starts at today's price and grows ${pct(r.cycle.schedule[0])}/yr. ` +
+      `Past cycle tops ran 2–3× above trend; this model assumes milder cycles.</div></div>`;
 
     // Notices
     const notes = [];
     const w = r.warnings;
-    const ladderLabel = (i) => `${i} (${M.CAGR_LADDER.slice(i).map((x) => Math.round(x * 100)).join('→')}%)`;
     if (w.peakToTrend) {
       const pw = w.peakToTrend;
-      const topK = `$${Math.round(p.top_usd / 1000)}K top on 1 Jan ${p.top_year}`;
-      const low = pw.value < 1.15;
-      const fix = pw.suggestedLadder !== null
-        ? `<p>${low ? 'A lower top implies a lower trend, which means you are further down the CAGR ladder.'
-                    : 'A higher top implies a higher trend, which means you are further up the CAGR ladder.'}</p>
-           <button type="button" class="primary" data-ladder="${pw.suggestedLadder}">Use ladder ${ladderLabel(pw.suggestedLadder)}</button>`
-        : `<p>No CAGR ladder start fixes this. Change the cycle top price or the top year. Treat the numbers below as unreliable.</p>`;
-      notes.push(`<div class="notice crit" role="alert"><strong>⚠ Critical: top price, top year and CAGR ladder don't fit together</strong>
-        <p>Peak-to-trend is ${pw.value.toFixed(2)}×, outside 1.15–2.50×. A ${topK} on ladder ${p.ladder_start_index}
-        ${low ? 'makes the model assume cycles have almost stopped (or run upside down)'
-              : `needs an extreme cycle: the worst year in the first two cycles is ${Math.round(pw.worstYear * 100)}%`}.</p>${fix}</div>`);
-    } else if (w.ladderHint !== null) {
-      notes.push(`<div class="notice warn"><strong>⚠ Check the CAGR ladder</strong>
-        <p>Peak-to-trend is ${r.cycle.peakToTrend.toFixed(2)}× (target ≈ 1.45×). For a $${Math.round(p.top_usd / 1000)}K top,
-        ladder ${ladderLabel(w.ladderHint)} is the consistent choice, and it can change the answer a lot.</p>
-        <button type="button" class="primary" data-ladder="${w.ladderHint}">Use ladder ${ladderLabel(w.ladderHint)}</button></div>`);
+      const low = pw.value < M.PTT_RANGE[0];
+      notes.push(`<div class="notice crit" role="alert"><strong>⚠ Your 2029 top doesn't fit today's BTC price</strong>
+        <p>${usd(p.top_usd)} is ${pw.value.toFixed(2)}× the trend, outside the 1.15–2.50× this model handles, and no trend growth rate fixes it.
+        ${low ? 'The model would assume the cycle has almost disappeared.'
+              : `It would need an extreme cycle, with a worst year of ${Math.round(pw.worstYear * 100)}%.`}
+        Change the top prediction and treat the numbers below as unreliable.</p></div>`);
     }
-    if (w.hodlExhaustedYear) {
-      const yrs = w.hodlExhaustedYear - d.retirementYear;
-      notes.push(`<div class="notice warn"><strong>⚠ Hodl sleeve runs out in ${w.hodlExhaustedYear}</strong>
-        <p>${yrs === 0 ? 'In your first retirement year' : `${yrs} year${yrs > 1 ? 's' : ''} into retirement`}, withdrawals start coming from the bot sleeve.
-        From then on you are living off an actively traded pot. Withdrawals are always taken from hodl first, because that
-        lets the bot sleeve keep compounding for longer.</p></div>`);
-    }
-    if (p.cycle_enabled) {
-      notes.push(`<div class="notice info"><strong>ℹ Retirement year ${d.retirementYear} is a ${PHASE_TEXT[w.retirementPhase]}</strong>
-        <p>See "Sequence risk" below for how the answer changes if you retire in a different part of the cycle.</p></div>`);
+    if (p.bot_ratio >= 1) {
+      notes.push(`<div class="notice info"><strong>ℹ All your BTC is in bots</strong>
+        <p>Every expense is paid from the bot portfolio. After the bots stop (end of ${stopYear}) it is simply your combined portfolio.</p></div>`);
+    } else if (p.bot_ratio > 0) {
+      const ex = w.hodlExhaustedYear;
+      const intro = 'Expenses are paid from your HODL portfolio first, so the bot portfolio keeps growing for as long as possible.';
+      const text = ex && ex <= stopYear
+        ? `${intro} Your HODL portfolio runs out during ${ex}; from then on expenses are paid from the bot portfolio. ` +
+          `When the bots stop (end of ${stopYear}) the bot portfolio becomes your combined portfolio.`
+        : `${intro} When the bots stop (end of ${stopYear}) both join into one combined portfolio, and expenses are paid from that.`;
+      notes.push(`<div class="notice info"><strong>ℹ Which portfolio pays your expenses</strong><p>${text}</p></div>`);
     }
     $('notices').innerHTML = notes.join('');
 
     // Levers
     const lmin = Math.min(...r.levers.map((l) => l.min)), lmax = Math.max(...r.levers.map((l) => l.max));
     const lx = (v) => ((v - lmin) / (lmax - lmin || 1)) * 100;
+    const you = lx(r.btcNeeded);
     $('levers').innerHTML = r.levers.map((l) => `<div class="lever"><div>${esc(l.name)}</div>
-      <div class="track" aria-hidden="true"><b style="left:${lx(l.min)}%;width:${Math.max(0.5, lx(l.max) - lx(l.min))}%"></b>
-      <i style="left:calc(${lx(r.btcNeeded)}% - 1px)"></i></div>
-      <div class="rng">${btc(l.min)}–${btc(l.max)}</div></div>`).join('');
+      <div class="track"><b style="left:${lx(l.min)}%;width:${Math.max(0.5, lx(l.max) - lx(l.min))}%"></b>
+      <span class="marker" style="left:${you}%" tabindex="0" role="img" aria-label="Your answer: ${btc(r.btcNeeded)} BTC"
+        title="Your answer: ${btc(r.btcNeeded)} BTC. This assumption alone moves it between ${btc(l.min)} and ${btc(l.max)} BTC."></span>
+      <span class="marker-label" style="left:clamp(14px, ${you}%, calc(100% - 14px))">${btc(r.btcNeeded)}</span></div>
+      <div class="rng">${btc(l.min)}–${btc(l.max)} BTC</div></div>`).join('');
 
-    // Scenarios
-    const gap = (r.scenarios.A / r.scenarios.B - 1) * 100;
-    $('scen-sub').innerHTML = `Letting the bots run until ${r.scenarios.BYear} instead of stopping when you retire ` +
-      (gap >= 0 ? `cuts the BTC needed by <span class="gap">${Math.round((1 - r.scenarios.B / r.scenarios.A) * 100)}%</span>.`
-                : `raises the BTC needed by <span class="gap">${Math.round((r.scenarios.B / r.scenarios.A - 1) * 100)}%</span>.`) +
-      ' Both assume the bot return holds.';
-    $('scen-table').innerHTML = `<thead><tr><th>Scenario</th><th>Bots stop after</th><th>BTC needed</th></tr></thead><tbody>
-      <tr><td>A: stop at retirement</td><td>${r.scenarios.AYear}</td><td>${btc(r.scenarios.A)}</td></tr>
-      <tr class="current"><td>B: your setting</td><td>${r.scenarios.BYear}</td><td>${btc(r.scenarios.B)}</td></tr></tbody>`;
-    $('life-table').innerHTML = `<thead><tr><th>Lifestyle/yr</th><th>A</th><th>B</th></tr></thead><tbody>` +
-      r.lifestyleRows.map((row) => `<tr><td>${eur(row.lifestyle)}</td><td>${btc(row.A)}</td><td>${btc(row.B)}</td></tr>`).join('') + '</tbody>';
-
-    // Sequence risk
-    const seq = w.sequence;
-    const smin = Math.min(...seq.map((x) => x.btc)), smax = Math.max(...seq.map((x) => x.btc));
-    $('seq-sub').textContent = `Same inputs, retirement moved around your chosen year so it lands in each part of the cycle ` +
-      `(bots still stop the same number of years after retiring). Spread: ${btc(smin)} to ${btc(smax)} BTC, ` +
-      `${(smax / smin).toFixed(1)}× from best to worst. Moving retirement also changes how many years must be funded.`;
-    $('seq-table').innerHTML = `<thead><tr><th>Retire at</th><th>First withdrawal</th><th>That year is a…</th><th>BTC needed</th></tr></thead><tbody>` +
-      seq.map((x) => `<tr class="${x.isCurrent ? 'current' : ''}"><td>${x.retirementAge}${x.isCurrent ? ' (you)' : ''}</td><td>${x.year}</td>` +
-        `<td>${p.cycle_enabled ? PHASE_TEXT[x.phase] : 'no cycle (switched off)'}</td><td>${btc(x.btc)}</td></tr>`).join('') + '</tbody>';
+    // When the bots stop: one table, lifestyles as rows, A and B as columns
+    const cut = Math.round((1 - r.scenarios.B / r.scenarios.A) * 100);
+    $('scen-sub').innerHTML = `Letting the bots run until end of ${stopYear} instead of stopping when you retire ` +
+      (cut >= 0 ? `cuts the BTC needed by <span class="gap">${cut}%</span>.` : `raises the BTC needed by <span class="gap">${-cut}%</span>.`) +
+      ' Both assume the bot return holds. BTC needed today:';
+    $('scen-table').innerHTML = `<thead><tr><th>Lifestyle/yr</th><th>A: bots stop when you retire (end ${r.scenarios.AYear})</th>` +
+      `<th>B: bots stop end of ${stopYear}</th></tr></thead><tbody>` +
+      r.lifestyleRows.map((row) => `<tr class="${row.isCurrent ? 'current' : ''}"><td>${usd(row.lifestyle)}${row.isCurrent ? ' (you)' : ''}</td>` +
+        `<td>${btc(row.A)}</td><td>${btc(row.B)}</td></tr>`).join('') + '</tbody>';
 
     // Charts
+    const cs = getComputedStyle(document.documentElement);
+    const v = (name) => cs.getPropertyValue(name).trim();
+
     const t0 = d.tRetire;
     const drawYears = s.years.slice(t0);
-    const cs = getComputedStyle(document.documentElement);
-    const c1 = cs.getPropertyValue('--series-1').trim(), c2 = cs.getPropertyValue('--series-2').trim();
-    const w1 = cs.getPropertyValue('--series-1-wash').trim(), w2 = cs.getPropertyValue('--series-2-wash').trim();
-    const cm = cs.getPropertyValue('--muted').trim();
+    const drawVals = s.sold.slice(t0);
+    drawChart({ container: $('chart-draw'), label: 'BTC sold per year', x: drawYears,
+      series: [{ name: 'BTC sold', color: v('--series-1'), values: drawVals }],
+      yFmt: (x) => x.toFixed(x < 1 ? 2 : 1), tipFmt: (x) => x.toFixed(3) + ' BTC' });
+    $('table-draw').innerHTML = table(['Year', 'BTC sold'], drawYears.map((y, i) => [y, drawVals[i].toFixed(3)]));
 
-    drawChart({ container: $('chart-draw'), label: 'BTC drawn per year', x: drawYears,
-      series: [{ name: 'DCA', color: c1, values: s.soldDCA.slice(t0) }, { name: 'LS', color: c2, values: s.soldLS.slice(t0) }],
-      yFmt: (v) => v.toFixed(v < 1 ? 2 : 1), tipFmt: (v) => v.toFixed(3) + ' BTC' });
-    $('table-draw').innerHTML = table(['Year', 'DCA BTC', 'LS BTC'],
-      drawYears.map((y, i) => [y, s.soldDCA[t0 + i].toFixed(3), s.soldLS[t0 + i].toFixed(3)]));
+    // Stack: HODL + Bot until the bots stop, then one combined portfolio.
+    const rows = s.rows;
+    const years = rows.map((x) => x.year).concat([rows[rows.length - 1].year + 1]);
+    const hodlAll = rows.map((x) => Math.max(0, x.startHodl)).concat([Math.max(0, rows[rows.length - 1].endHodl)]);
+    const botAll = rows.map((x) => Math.max(0, x.startBot)).concat([Math.max(0, rows[rows.length - 1].endBot)]);
+    const stopIdx = d.compoundStopIndex; // index of 1 Jan after the last bot year
+    const hodlVals = hodlAll.map((x, i) => (i <= stopIdx ? x : null));
+    const botVals = botAll.map((x, i) => (i <= stopIdx ? x : null));
+    const combVals = hodlAll.map((x, i) => (i >= stopIdx ? x + botAll[i] : null));
+    $('stack-sub').textContent = stopIdx < years.length
+      ? `BTC held on 1 January. Bots grow the bot portfolio's BTC until the end of ${stopYear}. After that it joins your HODL portfolio, and all expenses are paid from one combined portfolio.`
+      : `BTC held on 1 January. Bots grow the bot portfolio's BTC until the end of ${stopYear}.`;
+    drawChart({ container: $('chart-stack'), label: 'Portfolio over time', x: years, stacked: true,
+      series: [
+        // At the merge point the areas meet; the tooltip shows only the combined figure there.
+        { name: 'HODL portfolio', color: v('--series-1'), wash: v('--series-1-wash'), values: hodlVals, hideInTip: (i) => i >= stopIdx },
+        { name: 'Bot portfolio', color: v('--series-2'), wash: v('--series-2-wash'), values: botVals, hideInTip: (i) => i >= stopIdx },
+        { name: 'Combined portfolio', color: v('--series-3'), wash: v('--series-3-wash'), values: combVals, stack: false },
+      ],
+      yFmt: (x) => x.toFixed(x < 10 && x % 1 ? 1 : 0), tipFmt: (x) => x.toFixed(3) + ' BTC',
+      tipExtra: (i) => (i < stopIdx ? `<div class="muted">Total: ${(hodlAll[i] + botAll[i]).toFixed(3)} BTC</div>` : '') });
+    $('table-stack').innerHTML = table(['1 Jan', 'HODL BTC', 'Bot BTC', 'Combined BTC'],
+      years.map((y, i) => i < stopIdx
+        ? [y, hodlAll[i].toFixed(3), botAll[i].toFixed(3), '']
+        : [y, '', '', (hodlAll[i] + botAll[i]).toFixed(3)]));
 
-    const priceYears = s.price.map((_, i) => M.GRID_START_YEAR + i);
-    drawChart({ container: $('chart-price'), label: 'BTC price path', x: priceYears, log: true,
-      series: [{ name: 'Price', color: c1, values: s.price }, { name: 'Trend', color: cm, values: s.trend }],
-      yFmt: eurK, tipFmt: eur });
-    $('table-price').innerHTML = table(['1 Jan', 'Price', 'Trend'], priceYears.map((y, i) => [y, eur(s.price[i]), eur(s.trend[i])]));
-
-    const stackYears = s.rows.map((x) => x.year).concat([s.rows[s.rows.length - 1].year + 1]);
-    const hodlVals = s.rows.map((x) => Math.max(0, x.startHodl)).concat([Math.max(0, s.rows[s.rows.length - 1].endHodl)]);
-    const botVals = s.rows.map((x) => Math.max(0, x.startBot)).concat([Math.max(0, s.rows[s.rows.length - 1].endBot)]);
-    $('stack-sub').textContent = w.hodlExhaustedYear
-      ? `Bots grow their BTC count until the end of ${p.compound_until_year}. Hodl is drawn first and is gone by the end of ${w.hodlExhaustedYear}.`
-      : `Bots grow their BTC count until the end of ${p.compound_until_year}. Hodl is drawn first.`;
-    drawChart({ container: $('chart-stack'), label: 'Stack balance', x: stackYears, stacked: true,
-      series: [{ name: 'Hodl', color: c1, wash: w1, values: hodlVals }, { name: 'Bot', color: c2, wash: w2, values: botVals }],
-      yFmt: (v) => v.toFixed(v < 10 && v % 1 ? 1 : 0), tipFmt: (v) => v.toFixed(3) + ' BTC',
-      tipExtra: (i) => `<div class="muted">Total: ${(hodlVals[i] + botVals[i]).toFixed(3)} BTC</div>` });
-    $('table-stack').innerHTML = table(['1 Jan', 'Hodl BTC', 'Bot BTC', 'Total'],
-      stackYears.map((y, i) => [y, hodlVals[i].toFixed(3), botVals[i].toFixed(3), (hodlVals[i] + botVals[i]).toFixed(3)]));
-
-    // Assumptions (§5), with live values
-    const sched = r.cycle.schedule.map((x) => Math.round(x * 100)).join(' → ');
+    // Assumptions not already explained on screen
+    const sched = M.CAGR_LADDER.map((x) => Math.round(x * 100)).join(' → ');
     $('assumptions').innerHTML = [
-      `BTC spot ${eur(p.spot_eur)} today (the source chart used €80,000).`,
-      `Spending inflates ${pct(p.inflation)}/yr from today; the lifestyle figure is in today's money.`,
-      `BTC trend CAGR steps down every 4 years: ${sched}%, then flat.`,
-      p.cycle_enabled
-        ? 'A 4-year cycle is overlaid on that trend. Geometric return per cycle equals the tier CAGR exactly — the cycle redistributes return, it does not add any.'
-        : 'Cycle is switched off: smooth exponential growth, as in the original chart.',
-      p.cycle_enabled
-        ? `Cycle peaks run ${r.cycle.peakToTrend.toFixed(2)}× above trend (vs 2–3× historically). This is a damped-cycle assumption: it assumes Bitcoin's volatility keeps falling.`
-        : 'No cycle peaks are modelled.',
-      'Cycle amplitude shrinks in proportion to the CAGR, so a 7%-CAGR era has much milder swings than a 25% one.',
-      `Bots grow the BTC count by ${pct(p.bot_return)}/yr, net of fees and losses, and only while accumulating (until the end of ${p.compound_until_year}). This figure is an assumption, not a track record.`,
-      'Withdrawals are taken from the hodl sleeve first.',
-      `The portfolio is drawn to exactly zero at age ${p.end_age}. No estate, no buffer, no margin.`,
-      'No tax modelled. No state pension, property, or other income modelled.',
+      price.live
+        ? `Today's BTC price (${usd(p.spot_usd)}) comes live from CoinGecko when the page opens; your browser asks CoinGecko directly. It is used as the price on 1 January 2027.`
+        : `The live BTC price could not be loaded, so ${usd(p.spot_usd)} is used as the price on 1 January 2027.`,
+      `Spending grows with inflation of ${pct(p.inflation)}/yr; the lifestyle amount is in today's dollars.`,
+      `Long-run trend growth steps down every 4 years: ${sched}%, then stays at 7%. The starting step is picked so your 2029 top is about 1.45× the trend (now ${pct(r.cycle.schedule[0])}).`,
+      `A 4-year cycle moves the price around that trend, with the top at the end of 2029 (about 20 months after the next halving, estimated April 2028). Cycle lows sit on the trend, swings get smaller as growth slows, and over each 4 years the cycle adds no extra return. Today's price is assumed to be at a cycle low.`,
+      `Bots grow the number of BTC by ${pct(p.bot_return)}/yr after fees and losses, only while they run. This is an assumption, not a track record.`,
+      'BTC is sold every month to pay expenses.',
+      `The portfolio reaches exactly zero at age ${p.end_age}: no buffer and nothing left over.`,
+      'No tax, state pension, property or other income is included.',
     ].map((t) => `<li>${esc(t)}</li>`).join('');
   }
 
@@ -695,22 +650,15 @@
   $('inputs').addEventListener('input', schedule);
   $('inputs').addEventListener('change', schedule);
   $('reset').addEventListener('click', () => { writeInputs(M.DEFAULTS); render(); });
-  $('notices').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-ladder]');
-    if (!b) return;
-    $('ladder_start_index').value = b.getAttribute('data-ladder');
-    render();
-    $('hero').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  });
   let rw = null;
-  window.addEventListener('resize', () => { clearTimeout(rw); rw = setTimeout(() => last && render(), 150); });
+  window.addEventListener('resize', () => { clearTimeout(rw); rw = setTimeout(() => rendered && render(), 150); });
   if (window.matchMedia) {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    if (mq.addEventListener) mq.addEventListener('change', render);
+    if (mq.addEventListener) mq.addEventListener('change', () => rendered && render());
   }
 
   writeInputs(load());
-  render();
+  fetchPrice().then((got) => { price = got; renderPriceInfo(); render(); });
 })();
 </script>
 </body>
