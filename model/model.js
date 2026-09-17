@@ -48,7 +48,7 @@
   // Fills defaults and resolves an automatic ladder start to a number.
   function withDefaults(p) {
     const q = Object.assign({}, DEFAULTS, p || {});
-    if (q.ladder_start_index === 'auto') q.ladder_start_index = suggestLadderIndex(q);
+    if (q.ladder_start_index === 'auto') q.ladder_start_index = autoLadderStart(q);
     return q;
   }
 
@@ -67,8 +67,18 @@
   }
 
   // §2.2
+  // A fractional start x blends each tier between two neighbouring ladder steps (v0.2.1).
+  // An integer x gives exactly the original slice; the last rate (7%) repeats forever.
   function schedule(p) {
-    return CAGR_LADDER.slice(p.ladder_start_index);
+    const x = p.ladder_start_index;
+    if (Number.isInteger(x)) return CAGR_LADDER.slice(x);
+    const i = Math.floor(x);
+    const f = x - i;
+    const last = CAGR_LADDER.length - 1;
+    const step = (k) => CAGR_LADDER[Math.min(k, last)];
+    const out = [];
+    for (let k = 0; k <= last; k++) out.push(step(i + k) + f * (step(i + k + 1) - step(i + k)));
+    return out;
   }
   function rate(sched, t) {
     return sched[Math.min(Math.floor(t / TIER_LENGTH), sched.length - 1)];
@@ -83,7 +93,7 @@
    * Solves the amplitude a1 from the top anchor. The spec's closed form divides by
    * 1.06054 and subtracts t_peak_end·ln(1+schedule[0]); that is exact when the top is
    * 3 years out (the default). This uses the general sum, which reduces to it.
-   * Expects a numeric ladder_start_index.
+   * Expects a numeric (possibly fractional) ladder_start_index.
    */
   function solveCycle(p) {
     const sched = schedule(p);
@@ -225,18 +235,29 @@
     return out;
   }
 
-  // §3 trap: the ladder start whose peak/trend is closest to 1.45 for this top and spot.
-  function suggestLadderIndex(params) {
+  /*
+   * §3 trap, v0.2.1: the (fractional) ladder start that puts peak/trend at exactly 1.45.
+   * Whole steps made the answer jump when spot or top crossed a threshold. Peak/trend rises
+   * steadily with x (a later start means slower growth to the top), so bisection works.
+   * If 1.45 is out of reach, the nearer end (0 or 6) is used and the red warning decides.
+   */
+  function autoLadderStart(params) {
     const p = Object.assign({}, DEFAULTS, params || {});
-    let best = 0;
-    let bestErr = Infinity;
-    for (let i = 0; i < CAGR_LADDER.length; i++) {
-      const c = solveCycle(Object.assign({}, p, { ladder_start_index: i }));
-      if (!c.valid) continue;
-      const err = Math.abs(c.peakToTrend - PTT_TARGET);
-      if (err < bestErr) { bestErr = err; best = i; }
+    const last = CAGR_LADDER.length - 1;
+    const ptt = (x) => solveCycle(Object.assign({}, p, { ladder_start_index: x })).peakToTrend;
+    const lo0 = ptt(0);
+    const hi0 = ptt(last);
+    if (!Number.isFinite(lo0) || !Number.isFinite(hi0)) return 0;
+    if (lo0 >= PTT_TARGET) return 0;
+    if (hi0 <= PTT_TARGET) return last;
+    let lo = 0;
+    let hi = last;
+    for (let i = 0; i < 60; i++) {
+      const mid = (lo + hi) / 2;
+      if (ptt(mid) < PTT_TARGET) lo = mid;
+      else hi = mid;
     }
-    return best;
+    return (lo + hi) / 2;
   }
 
   function range(values) {
@@ -332,8 +353,8 @@
     between('top_usd', 50000, 2000000);
     between('top_year', 2028, 2030);
     between('cash_yield', 0, 0.06);
-    if (p.ladder_start_index !== 'auto') between('ladder_start_index', 0, 6);
-    ['current_age', 'retirement_age', 'end_age', 'compound_until_year', 'top_year', 'ladder_start_index']
+    if (p.ladder_start_index !== 'auto') between('ladder_start_index', 0, 6); // fractional allowed since v0.2.1
+    ['current_age', 'retirement_age', 'end_age', 'compound_until_year', 'top_year']
       .forEach((k) => { if (Number.isFinite(p[k]) && !Number.isInteger(p[k])) errors.push(`${k} must be a whole number.`); });
     if (!(p.spot_usd > 0)) errors.push('spot_usd must be above 0.');
     if (!(p.retirement_age >= p.current_age)) errors.push('Retirement age must be at least your current age.');
@@ -349,6 +370,6 @@
   return {
     GRID_START_YEAR, STUB_YEARS, TIER_LENGTH, CAGR_LADDER, DEV, PHASE_NAMES, PTT_TARGET, PTT_RANGE,
     FALLBACK_SPOT_USD, DEFAULTS, derive, schedule, rate, solveCycle, growth, prepare, run,
-    endingBalance, solve, tierInvariantErrors, suggestLadderIndex, phaseIndex, results, validate,
+    endingBalance, solve, tierInvariantErrors, autoLadderStart, phaseIndex, results, validate,
   };
 });
